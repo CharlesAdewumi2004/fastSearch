@@ -48,7 +48,7 @@ namespace hybrid_search::detail
     template <class RandomIt, class V, class Comp>
     inline RandomIt lower_bound_hybrid_fw(size_t range, RandomIt first, RandomIt last, const V &value, Comp comp)
     {
-        using diff_t = typename std::iterator_traits<ForwardIt>::difference_type;
+        using diff_t = typename std::iterator_traits<RandomIt>::difference_type;
 
         diff_t count = std::distance(first, last);
         while (count > 0)

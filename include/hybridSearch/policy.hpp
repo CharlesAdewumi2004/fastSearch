@@ -1,8 +1,8 @@
-#pragma once;
+#pragma once
 
 #include <cstddef>
 
-namespace hybridSearch::policy
+namespace hybrid_search::policy
 {
     struct standard_binary final
     {
