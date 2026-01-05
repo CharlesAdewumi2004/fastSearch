@@ -1,0 +1,62 @@
+#pragma once
+
+#include <cstddef>
+#include <iterator>
+
+#include "lower-bound-standard-impl.hpp"
+
+namespace hybrid_search::detail
+{
+
+    template <class It, class V, class Comp>
+    inline It lower_bound_linear_scan(It first, typename std::iterator_traits<It>::difference_type count, const V &value, Comp comp)
+    {
+        while (count > 0)
+        {
+            if (!comp(*first, value))
+            {
+                break;
+            }
+            ++first;
+            --count;
+        }
+        return first;
+    }
+
+    /* ============================================================
+       RANDOM ACCESS ITERATORS
+       ============================================================ */
+
+    template <class RandomIt, class V, class Comp>
+    inline RandomIt lower_bound_hybrid_ra(size_t range, RandomIt first, RandomIt last, const V &value, Comp comp)
+    {
+        using diff_t = typename std::iterator_traits<RandomIt>::difference_type;
+
+        diff_t count = last - first;
+        while (count > range)
+        {
+            lower_bound_probe_ra(first, count, value, comp);
+        }
+        lower_bound_linear_scan(first, count, value, comp);
+        return first;
+    }
+
+    /* ============================================================
+       FORWARD ITERATORS
+       ============================================================ */
+
+    template <class RandomIt, class V, class Comp>
+    inline RandomIt lower_bound_hybrid_fw(size_t range, RandomIt first, RandomIt last, const V &value, Comp comp)
+    {
+        using diff_t = typename std::iterator_traits<ForwardIt>::difference_type;
+
+        diff_t count = std::distance(first, last);
+        while (count > 0)
+        {
+            lower_bound_probe_fw(first, count, value, comp);
+        }
+        lower_bound_linear_scan(first, count, value, comp);
+        return first;
+    }
+
+}
