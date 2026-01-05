@@ -9,13 +9,13 @@ namespace hybrid_search::policy
     };
 
     template <std::size_t Threshold>
-    struct binary_linear_hybrid final
+    struct hybrid final
     {
         static constexpr std::size_t threshold = Threshold;
     };
 
     template <class Search_Policy, class Gallop_Start>
-    struct galloping_binary_linear_hybrid final
+    struct galloping final
     {
         using search_policy = Search_Policy;
         using gallop_start = Gallop_Start;
@@ -23,7 +23,7 @@ namespace hybrid_search::policy
 
 }
 
-namespace hybridSearch::policy::gallop
+namespace hybrid_search::policy::gallop
 {
     struct start_front final
     {

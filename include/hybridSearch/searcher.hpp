@@ -9,6 +9,7 @@
 #include "details/lower-bound-hybrid-impl.hpp"
 #include "details/lower-bound-standard-impl.hpp"
 #include "policy.hpp"
+#include "traits.hpp"
 
 namespace hybrid_search
 {
@@ -47,6 +48,24 @@ namespace hybrid_search
     template <class It, class V>
     It searcher<Policy>::lower_bound(It first, It last, const V &value)
     {
+        constexpr auto k = hybrid_search::policy::traits::policy_traits<Policy>::kind;
+
+        if constexpr (k == policy_kind::standard_binary)
+        {
+            // TODO
+        }
+        else if constexpr (k == policy_kind::galloping)
+        {
+            // TODO
+        }
+        else if constexpr (k == policy_kind::hybrid)
+        {
+            // TODO
+        }
+        else
+        {
+            static_assert([]{ return false; }(), "Unknown policy");
+        }
     }
 
 }
