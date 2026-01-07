@@ -35,7 +35,7 @@ namespace boundcraft::detail
         using diff_t = typename std::iterator_traits<RandomIt>::difference_type;
 
         diff_t count = std::distance(first, last);
-        while (count > range)
+        while (count > static_cast<diff_t>(range))
         {
             lower_bound_probe_fw(first, count, value, comp);
         }

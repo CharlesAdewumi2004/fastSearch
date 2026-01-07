@@ -14,8 +14,7 @@
 namespace boundcraft
 {
     template <class Comp, class It, class V>
-    concept lower_bound_comparator =
-        std::indirect_strict_weak_order<Comp, It, const V *>;
+    concept lower_bound_comparator = std::indirect_strict_weak_order<Comp, It, const V *>;
 
     template <class Policy>
     class searcher final

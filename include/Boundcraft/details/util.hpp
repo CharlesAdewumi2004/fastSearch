@@ -41,11 +41,7 @@ namespace boundcraft::detail
     }
 
     template <forward_not_random_it ForwardIt, class V, class Comp>
-    inline void lower_bound_probe_fw(
-        ForwardIt &first,
-        std::iter_difference_t<ForwardIt> &count,
-        const V &value,
-        Comp comp)
+    inline void lower_bound_probe_fw(ForwardIt &first, std::iter_difference_t<ForwardIt> &count, const V &value, Comp comp)
     {
         auto step = count / 2;
         ForwardIt mid = first;
