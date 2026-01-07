@@ -213,7 +213,6 @@ class LowerBoundDescendingDeterministic : public ::testing::Test {};
 using DescDetPolicies = ::testing::Types<
     policies::stdbin,
     policies::hyb16,
-    // Galloping policies are RA-only -> tested here with std::vector
     policies::g_stdbin_middle,
     policies::g_hyb16_middle
 >;
