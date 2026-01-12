@@ -25,12 +25,12 @@ namespace boundcraft::detail
 
         if (comp(value, *mid))
         {
-            first = mid + 1;
-            count -= step + 1;
+            count = step;
         }
         else
         {
-            count = step;
+            first = mid + 1;
+            count -= step + 1;
         }
     }
 
@@ -43,13 +43,13 @@ namespace boundcraft::detail
 
         if (comp(value, *mid))
         {
-            ++mid;
-            first = mid;
-            count -= step + 1;
+            count = step;
         }
         else
         {
-            count = step;
+            ++mid;
+            first = mid;
+            count -= step + 1;
         }
     }
 

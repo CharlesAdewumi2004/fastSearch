@@ -11,7 +11,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_executable(boundcraft_tests
-  test.cpp
+  lower-bound-tests.cpp
+  upper-bound-tests.cpp
 )
 
 target_link_libraries(boundcraft_tests

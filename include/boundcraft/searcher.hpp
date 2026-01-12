@@ -18,23 +18,28 @@ namespace boundcraft
     template <class Comp, class It, class V>
     concept one_way_lower =
         std::input_iterator<It> &&
-        requires(Comp comp, std::iter_reference_t<It> elem, const V& v)
-        {
+        requires(Comp comp, std::iter_reference_t<It> elem, const V &v) {
             { std::invoke(comp, elem, v) } -> std::convertible_to<bool>;
         };
 
     template <class Comp, class It, class V>
     concept one_way_upper =
         std::input_iterator<It> &&
-        requires(Comp comp, const V& v, std::iter_reference_t<It> elem)
-        {
+        requires(Comp comp, const V &v, std::iter_reference_t<It> elem) {
             { std::invoke(comp, v, elem) } -> std::convertible_to<bool>;
         };
 
     template <class Comp, class It, class V>
     concept strict_compare =
         std::input_iterator<It> &&
-        std::indirect_strict_weak_order<Comp, It, const V*>;
+        requires(Comp comp,
+                 std::iter_reference_t<It> a,
+                 std::iter_reference_t<It> b,
+                 const V &v) {
+            { std::invoke(comp, a, b) } -> std::convertible_to<bool>; // Elem vs Elem
+            { std::invoke(comp, a, v) } -> std::convertible_to<bool>; // Elem vs Key
+            { std::invoke(comp, v, a) } -> std::convertible_to<bool>; // Key vs Elem
+        };
 
     template <class Policy>
     class searcher final
@@ -44,164 +49,163 @@ namespace boundcraft
         ~searcher() = default;
 
         template <class It, class V>
-        It lower_bound(It first, It last, const V& value)
+        It lower_bound(It first, It last, const V &value)
         {
             return lower_bound(first, last, value, std::less<>{});
         }
 
         template <class It, class V, class Comp>
             requires one_way_lower<Comp, It, V>
-        It lower_bound(It first, It last, const V& value, Comp comp)
+        It lower_bound(It first, It last, const V &value, Comp comp)
         {
             return dispatch_lower(first, last, value, comp);
         }
 
         template <class It, class V, class Comp>
-        requires strict_compare<Comp, It, V>
-        It lower_bound_strict(It first, It last, const V& value, Comp comp)
+            requires strict_compare<Comp, It, V>
+        It lower_bound_strict(It first, It last, const V &value, Comp comp)
         {
             return dispatch_lower(first, last, value, comp);
         }
-
 
         template <class It, class V>
-        It upper_bound(It first, It last, const V& value)
+        It upper_bound(It first, It last, const V &value)
         {
             return upper_bound(first, last, value, std::less<>{});
         }
 
         template <class It, class V, class Comp>
-        requires one_way_upper<Comp, It, V>
-        It upper_bound(It first, It last, const V& value, Comp comp)
+            requires one_way_upper<Comp, It, V>
+        It upper_bound(It first, It last, const V &value, Comp comp)
         {
             return dispatch_upper(first, last, value, comp);
         }
 
         template <class It, class V, class Comp>
-        requires strict_compare<Comp, It, V>
-        It upper_bound_strict(It first, It last, const V& value, Comp comp)
+            requires strict_compare<Comp, It, V>
+        It upper_bound_strict(It first, It last, const V &value, Comp comp)
         {
             return dispatch_upper(first, last, value, comp);
         }
 
         template <class T, class V>
-        T* lower_bound(std::span<T> s, const V& value)
+        T *lower_bound(std::span<T> s, const V &value)
         {
             return lower_bound(s.data(), s.data() + s.size(), value, std::less<>{});
         }
 
         template <class T, class V, class Comp>
-        requires one_way_lower<Comp, T*, V>
-        T* lower_bound(std::span<T> s, const V& value, Comp comp)
+            requires one_way_lower<Comp, T *, V>
+        T *lower_bound(std::span<T> s, const V &value, Comp comp)
         {
             return dispatch_lower(s.data(), s.data() + s.size(), value, comp);
         }
 
         template <class T, class V>
-        const T* lower_bound(std::span<const T> s, const V& value)
+        const T *lower_bound(std::span<const T> s, const V &value)
         {
             return lower_bound(s.data(), s.data() + s.size(), value, std::less<>{});
         }
 
         template <class T, class V, class Comp>
-        requires one_way_lower<Comp, const T*, V>
-        const T* lower_bound(std::span<const T> s, const V& value, Comp comp)
+            requires one_way_lower<Comp, const T *, V>
+        const T *lower_bound(std::span<const T> s, const V &value, Comp comp)
         {
             return dispatch_lower(s.data(), s.data() + s.size(), value, comp);
         }
 
         template <class T, class V>
-        T* upper_bound(std::span<T> s, const V& value)
+        T *upper_bound(std::span<T> s, const V &value)
         {
             return upper_bound(s.data(), s.data() + s.size(), value, std::less<>{});
         }
 
         template <class T, class V, class Comp>
-        requires one_way_upper<Comp, T*, V>
-        T* upper_bound(std::span<T> s, const V& value, Comp comp)
+            requires one_way_upper<Comp, T *, V>
+        T *upper_bound(std::span<T> s, const V &value, Comp comp)
         {
             return dispatch_upper(s.data(), s.data() + s.size(), value, comp);
         }
 
         template <class T, class V>
-        const T* upper_bound(std::span<const T> s, const V& value)
+        const T *upper_bound(std::span<const T> s, const V &value)
         {
             return upper_bound(s.data(), s.data() + s.size(), value, std::less<>{});
         }
 
         template <class T, class V, class Comp>
-        requires one_way_upper<Comp, const T*, V>
-        const T* upper_bound(std::span<const T> s, const V& value, Comp comp)
+            requires one_way_upper<Comp, const T *, V>
+        const T *upper_bound(std::span<const T> s, const V &value, Comp comp)
         {
             return dispatch_upper(s.data(), s.data() + s.size(), value, comp);
         }
 
         template <class T, class V>
-        T* lower_bound(T* first, T* last, const V& value)
+        T *lower_bound(T *first, T *last, const V &value)
         {
             return lower_bound(first, last, value, std::less<>{});
         }
 
         template <class T, class V, class Comp>
-        requires one_way_lower<Comp, T*, V>
-        T* lower_bound(T* first, T* last, const V& value, Comp comp)
+            requires one_way_lower<Comp, T *, V>
+        T *lower_bound(T *first, T *last, const V &value, Comp comp)
         {
             return dispatch_lower(first, last, value, comp);
         }
 
         template <class T, class V>
-        const T* lower_bound(const T* first, const T* last, const V& value)
+        const T *lower_bound(const T *first, const T *last, const V &value)
         {
             return lower_bound(first, last, value, std::less<>{});
         }
 
         template <class T, class V, class Comp>
-        requires one_way_lower<Comp, const T*, V>
-        const T* lower_bound(const T* first, const T* last, const V& value, Comp comp)
+            requires one_way_lower<Comp, const T *, V>
+        const T *lower_bound(const T *first, const T *last, const V &value, Comp comp)
         {
             return dispatch_lower(first, last, value, comp);
         }
 
         template <class T, class V>
-        T* upper_bound(T* first, T* last, const V& value)
+        T *upper_bound(T *first, T *last, const V &value)
         {
             return upper_bound(first, last, value, std::less<>{});
         }
 
         template <class T, class V, class Comp>
-        requires one_way_upper<Comp, T*, V>
-        T* upper_bound(T* first, T* last, const V& value, Comp comp)
+            requires one_way_upper<Comp, T *, V>
+        T *upper_bound(T *first, T *last, const V &value, Comp comp)
         {
             return dispatch_upper(first, last, value, comp);
         }
 
         template <class T, class V>
-        const T* upper_bound(const T* first, const T* last, const V& value)
+        const T *upper_bound(const T *first, const T *last, const V &value)
         {
             return upper_bound(first, last, value, std::less<>{});
         }
 
         template <class T, class V, class Comp>
-        requires one_way_upper<Comp, const T*, V>
-        const T* upper_bound(const T* first, const T* last, const V& value, Comp comp)
+            requires one_way_upper<Comp, const T *, V>
+        const T *upper_bound(const T *first, const T *last, const V &value, Comp comp)
         {
             return dispatch_upper(first, last, value, comp);
         }
 
     private:
         template <class It, class V, class Comp>
-        requires one_way_lower<Comp, It, V>
-        static It dispatch_lower(It first, It last, const V& value, Comp comp);
+            requires one_way_lower<Comp, It, V>
+        static It dispatch_lower(It first, It last, const V &value, Comp comp);
 
         template <class It, class V, class Comp>
-        requires one_way_upper<Comp, It, V>
-        static It dispatch_upper(It first, It last, const V& value, Comp comp);
+            requires one_way_upper<Comp, It, V>
+        static It dispatch_upper(It first, It last, const V &value, Comp comp);
     };
 
     template <class Policy>
     template <class It, class V, class Comp>
         requires one_way_lower<Comp, It, V>
-    It searcher<Policy>::dispatch_lower(It first, It last, const V& value, Comp comp)
+    It searcher<Policy>::dispatch_lower(It first, It last, const V &value, Comp comp)
     {
         using traits = boundcraft::policy::traits::policy_traits<Policy>;
         constexpr auto k = traits::kind;
@@ -218,22 +222,22 @@ namespace boundcraft
         else if constexpr (k == policy_kind::galloping)
         {
             using search_policy_t = typename traits::search_policy;
-            using gallop_start_t  = typename traits::gallop_start;
+            using gallop_start_t = typename traits::gallop_start;
 
             return boundcraft::detail::lower_bound_gallop_impl<search_policy_t, gallop_start_t>(
                 first, last, value, comp);
         }
         else
         {
-            static_assert([] { return false; }(), "Unknown policy");
+            static_assert([]
+                          { return false; }(), "Unknown policy");
         }
     }
 
-
     template <class Policy>
     template <class It, class V, class Comp>
-    requires one_way_upper<Comp, It, V>
-    It searcher<Policy>::dispatch_upper(It first, It last, const V& value, Comp comp)
+        requires one_way_upper<Comp, It, V>
+    It searcher<Policy>::dispatch_upper(It first, It last, const V &value, Comp comp)
     {
         using traits = boundcraft::policy::traits::policy_traits<Policy>;
         constexpr auto k = traits::kind;
@@ -250,15 +254,16 @@ namespace boundcraft
         else if constexpr (k == policy_kind::galloping)
         {
             using search_policy_t = typename traits::search_policy;
-            using gallop_start_t  = typename traits::gallop_start;
+            using gallop_start_t = typename traits::gallop_start;
 
             return boundcraft::detail::upper_bound_gallop_impl<search_policy_t, gallop_start_t>(
                 first, last, value, comp);
         }
         else
         {
-            static_assert([] { return false; }(), "Unknown policy");
+            static_assert([]
+                          { return false; }(), "Unknown policy");
         }
     }
 
-} 
+}
