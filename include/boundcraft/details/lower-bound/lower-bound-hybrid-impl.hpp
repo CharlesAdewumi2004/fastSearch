@@ -1,15 +1,9 @@
 #pragma once
 
-#include "util.hpp"
+#include <boundcraft/details/lower-bound/lower-bound-util.hpp>
 
 namespace boundcraft::detail
 {
-
-    
-
-    /* ============================================================
-       RANDOM ACCESS ITERATORS
-       ============================================================ */
 
     template <random_it RandomIt, class V, class Comp>
     inline RandomIt lower_bound_hybrid_impl(size_t range, RandomIt first, RandomIt last, const V &value, Comp comp)
@@ -24,10 +18,6 @@ namespace boundcraft::detail
         first = lower_bound_linear_scan(first, count, value, comp);
         return first;
     }
-
-    /* ============================================================
-       FORWARD ITERATORS
-       ============================================================ */
 
     template <forward_not_random_it RandomIt, class V, class Comp>
     inline RandomIt lower_bound_hybrid_impl(size_t range, RandomIt first, RandomIt last, const V &value, Comp comp)

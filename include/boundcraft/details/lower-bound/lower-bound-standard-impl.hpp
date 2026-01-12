@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util.hpp"
+#include <boundcraft/details/lower-bound/lower-bound-util.hpp>
 namespace boundcraft::detail
 {
 

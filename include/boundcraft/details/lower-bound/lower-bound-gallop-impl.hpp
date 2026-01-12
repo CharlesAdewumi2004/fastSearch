@@ -1,14 +1,11 @@
 #pragma once
 
-#include <boundcraft/details/lower-bound-hybrid-impl.hpp>
-#include <boundcraft/details/lower-bound-standard-impl.hpp>
-#include <boundcraft/details/util.hpp>
+#include <boundcraft/details/lower-bound/lower-bound-hybrid-impl.hpp>
+#include <boundcraft/details/lower-bound/lower-bound-standard-impl.hpp>
+#include <boundcraft/details/lower-bound/lower-bound-util.hpp>
 
 namespace boundcraft::detail
 {
-
-    template <class...>
-    inline constexpr bool always_false_v = false;
 
     template <class Search_Policy, class Gallop_Start, class It, class V, class Comp>
         requires(!std::random_access_iterator<It>)
@@ -78,7 +75,7 @@ namespace boundcraft::detail
             {
                 return last;
             }
-            expand_right(lo, hi, start_point, value, comp);
+            lower_bound_expand_right(lo, hi, start_point, value, comp);
         }
         else
         {
@@ -86,7 +83,7 @@ namespace boundcraft::detail
             {
                 return first;
             }
-            expand_left(lo, hi, start_point, value, comp);
+            lower_bound_expand_left(lo, hi, start_point, value, comp);
         }
 
         using ptraits = boundcraft::policy::traits::policy_traits<Search_Policy>;

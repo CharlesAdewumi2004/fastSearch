@@ -1,7 +1,7 @@
 #pragma once
 
-#include "searcher.hpp"
-#include "policy.hpp"
-#include "traits.hpp"
+#include <boundcraft/searcher.hpp>
+#include <boundcraft/policy.hpp>
+#include <boundcraft/traits.hpp>
 
 namespace boundcraft{}

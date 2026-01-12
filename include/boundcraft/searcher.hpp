@@ -7,11 +7,10 @@
 #include <type_traits>
 #include <utility>
 
-#include "details/lower-bound-gallop-impl.hpp"
-#include "details/lower-bound-hybrid-impl.hpp"
-#include "details/lower-bound-standard-impl.hpp"
-#include "policy.hpp"
-#include "traits.hpp"
+#include <boundcraft/details/lower-bound/lower-bound.hpp>
+#include <boundcraft/details/upper-bound/upper-bound.hpp>
+#include <boundcraft/policy.hpp>
+#include <boundcraft/traits.hpp>
 
 namespace boundcraft
 {
@@ -19,18 +18,18 @@ namespace boundcraft
     // Comparator concepts
     // ------------------------------------------------------------
 
-    // 1-way heterogeneous "key-compare": comp(element, key) -> bool
+    // 1-way comparison
     template <class Comp, class It, class V>
-    concept lower_bound_key_compare =
+    concept one_way_comparison =
         std::input_iterator<It> &&
         requires(Comp comp, std::iter_reference_t<It> elem, const V &v)
         {
             { std::invoke(comp, elem, v) } -> std::convertible_to<bool>;
         };
-
-    // strict weak order (std::lower_bound-style comparator)
+    
+        // 2-way comparison
     template <class Comp, class It, class V>
-    concept lower_bound_strict_compare =
+    concept two_way_comparison =
         std::input_iterator<It> &&
         std::indirect_strict_weak_order<Comp, It, const V *>;
 
@@ -48,24 +47,15 @@ namespace boundcraft
         template <class It, class V>
         It lower_bound(It first, It last, const V &value)
         {
-            // default comparator expects (*it < value) to be valid
             return lower_bound(first, last, value, std::less<>{});
         }
 
-        // ✅ FIXED: accept 1-way comparator (elem, key)
+
         template <class It, class V, class Comp>
-            requires lower_bound_key_compare<Comp, It, V>
+            requires one_way_comparison<Comp, It, V>
         It lower_bound(It first, It last, const V &value, Comp comp)
         {
-            return dispatch(first, last, value, comp);
-        }
-
-        // Optional: keep a strict-order entry point for people who want it
-        template <class It, class V, class Comp>
-            requires lower_bound_strict_compare<Comp, It, V>
-        It lower_bound_strict(It first, It last, const V &value, Comp comp)
-        {
-            return dispatch(first, last, value, comp);
+            return lower_bound_dispatch(first, last, value, comp);
         }
 
         // ------------------------------------------------------------
@@ -79,10 +69,10 @@ namespace boundcraft
         }
 
         template <class T, class V, class Comp>
-            requires lower_bound_key_compare<Comp, T *, V>
+            requires one_way_comparison<Comp, T *, V>
         T *lower_bound(std::span<T> s, const V &value, Comp comp)
         {
-            return dispatch(s.data(), s.data() + s.size(), value, comp);
+            return lower_bound_dispatch(s.data(), s.data() + s.size(), value, comp);
         }
 
         template <class T, class V>
@@ -92,10 +82,10 @@ namespace boundcraft
         }
 
         template <class T, class V, class Comp>
-            requires lower_bound_key_compare<Comp, const T *, V>
+            requires one_way_comparison<Comp, const T *, V>
         const T *lower_bound(std::span<const T> s, const V &value, Comp comp)
         {
-            return dispatch(s.data(), s.data() + s.size(), value, comp);
+            return lower_bound_dispatch(s.data(), s.data() + s.size(), value, comp);
         }
 
         // ------------------------------------------------------------
@@ -109,10 +99,10 @@ namespace boundcraft
         }
 
         template <class T, class V, class Comp>
-            requires lower_bound_key_compare<Comp, T *, V>
+            requires one_way_comparison<Comp, T *, V>
         T *lower_bound(T *first, T *last, const V &value, Comp comp)
         {
-            return dispatch(first, last, value, comp);
+            return lower_bound_dispatch(first, last, value, comp);
         }
 
         template <class T, class V>
@@ -122,27 +112,31 @@ namespace boundcraft
         }
 
         template <class T, class V, class Comp>
-            requires lower_bound_key_compare<Comp, const T *, V>
+            requires one_way_comparison<Comp, const T *, V>
         const T *lower_bound(const T *first, const T *last, const V &value, Comp comp)
         {
-            return dispatch(first, last, value, comp);
+            return lower_bound_dispatch(first, last, value, comp);
         }
 
     private:
         // single policy switch so gallop changes apply everywhere
         template <class It, class V, class Comp>
-            requires lower_bound_key_compare<Comp, It, V>
-        static It dispatch(It first, It last, const V &value, Comp comp);
+            requires one_way_comparison<Comp, It, V>
+        static It lower_bound_dispatch(It first, It last, const V &value, Comp comp);
     };
 
+
+
+
+
     // =========================================================================
-    // Dispatch (single policy switch)
+    // lower_bound_dispatch
     // =========================================================================
 
     template <class Policy>
     template <class It, class V, class Comp>
-        requires lower_bound_key_compare<Comp, It, V>
-    It searcher<Policy>::dispatch(It first, It last, const V &value, Comp comp)
+        requires one_way_comparison<Comp, It, V>
+    It searcher<Policy>::lower_bound_dispatch(It first, It last, const V &value, Comp comp)
     {
         using traits = boundcraft::policy::traits::policy_traits<Policy>;
         constexpr auto k = traits::kind;
