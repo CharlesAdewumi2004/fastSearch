@@ -10,8 +10,8 @@
 #include <vector>
 #include <forward_list>
 
-// Your library
-#include "../include/Boundcraft/boundcraft.hpp"
+#include <boundcraft/boundcraft.hpp>
+
 
 // ------------------------------------------------------------
 // Helpers

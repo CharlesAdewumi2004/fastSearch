@@ -4,8 +4,6 @@
 namespace boundcraft::detail
 {
 
-
-
     template <random_it RandomIt, class V, class Comp>
     inline RandomIt lower_bound_standard_binary_impl(
         RandomIt first, RandomIt last, const V &value, Comp comp)

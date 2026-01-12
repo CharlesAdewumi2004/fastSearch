@@ -1,9 +1,8 @@
 #pragma once
 
-#include "util.hpp"
-
-#include "lower-bound-hybrid-impl.hpp"
-#include "lower-bound-standard-impl.hpp"
+#include <boundcraft/details/lower-bound-hybrid-impl.hpp>
+#include <boundcraft/details/lower-bound-standard-impl.hpp>
+#include <boundcraft/details/util.hpp>
 
 namespace boundcraft::detail
 {

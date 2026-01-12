@@ -4,7 +4,9 @@ project(boundcraft VERSION 0.1.0 LANGUAGES CXX)
 
 # ---- Options ----
 option(BOUNDCRAFT_BUILD_TESTS "Build boundcraft tests" ON)
-option(BOUNDCRAFT_BUILD_BENCH  "Build boundcraft benchmarks" OFF)
+option(BOUNDCRAFT_BUILD_BENCH "Build boundcraft benchmarks" ON)
+
+include(GNUInstallDirs)
 
 # ---- Library target (header-only) ----
 add_library(boundcraft INTERFACE)
@@ -12,8 +14,8 @@ add_library(boundcraft::boundcraft ALIAS boundcraft)
 
 target_include_directories(boundcraft
   INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_compile_features(boundcraft INTERFACE cxx_std_20)
@@ -27,43 +29,52 @@ endif()
 # ---- Tests ----
 if (BOUNDCRAFT_BUILD_TESTS)
   enable_testing()
-  add_subdirectory(tests)
+
+  if (EXISTS "${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt")
+    add_subdirectory(tests)
+  else()
+    message(WARNING "BOUNDCRAFT_BUILD_TESTS=ON but ${PROJECT_SOURCE_DIR}/tests/ was not found. Skipping tests.")
+  endif()
 endif()
 
 # ---- Benchmarks ----
 if (BOUNDCRAFT_BUILD_BENCH)
-  add_subdirectory(bench)
+  if (EXISTS "${PROJECT_SOURCE_DIR}/bench/CMakeLists.txt")
+    add_subdirectory(bench)
+  else()
+    message(WARNING "BOUNDCRAFT_BUILD_BENCH=ON but ${PROJECT_SOURCE_DIR}/bench/ was not found. Skipping benchmarks.")
+  endif()
 endif()
 
 # ---- Install / export ----
-include(GNUInstallDirs)
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-
-install(TARGETS boundcraft EXPORT boundcraftTargets)
+install(TARGETS boundcraft
+        EXPORT boundcraftTargets)
 
 install(EXPORT boundcraftTargets
   FILE boundcraftTargets.cmake
   NAMESPACE boundcraft::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/boundcraft
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/boundcraft"
 )
 
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/boundcraftConfigVersion.cmake"
-  VERSION ${PROJECT_VERSION}
+  "${PROJECT_BINARY_DIR}/boundcraftConfigVersion.cmake"
+  VERSION "${PROJECT_VERSION}"
   COMPATIBILITY SameMajorVersion
 )
 
 configure_package_config_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/boundcraftConfig.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/boundcraftConfig.cmake"
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/boundcraft
+  "${PROJECT_SOURCE_DIR}/cmake/boundcraftConfig.cmake.in"
+  "${PROJECT_BINARY_DIR}/boundcraftConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/boundcraft"
 )
 
 install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/boundcraftConfig.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/boundcraftConfigVersion.cmake"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/boundcraft
+  "${PROJECT_BINARY_DIR}/boundcraftConfig.cmake"
+  "${PROJECT_BINARY_DIR}/boundcraftConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/boundcraft"
 )
