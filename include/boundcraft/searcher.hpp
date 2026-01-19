@@ -229,8 +229,7 @@ namespace boundcraft
         }
         else
         {
-            static_assert([]
-                          { return false; }(), "Unknown policy");
+            static_assert([]{ return false; }(), "Unknown policy");
         }
     }
 
